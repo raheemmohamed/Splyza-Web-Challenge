@@ -1,0 +1,119 @@
+<div class="container w-6 m-auto">
+  <ng-container
+    *ngIf="videoDetails && loggedInUserDetails && !videoTitleUpdated"
+  >
+    <div
+      class="flex mb-5 gap-3"
+      *ngIf="videoDetails.author.id == loggedInUserDetails.id"
+    >
+      <div class="w-full">
+        <input type="text" pInputText [(ngModel)]="videoTitle" class="w-full" />
+      </div>
+
+      <button
+        pButton
+        pRipple
+        label="Save"
+        class="p-button btn-save"
+        (click)="updateVideoTitle(videoDetails.id)"
+      ></button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="videoTitleUpdated">
+    <h3>{{ videoDetails.title }}</h3>
+  </ng-container>
+
+  <ng-container *ngIf="videoDetails">
+    <video #videoPlayer width="100%" height="h-4rem" controls class="mb-4">
+      <source [src]="videoDetails?.url" type="video/mp4" />
+
+      Your browser does not support the video tag.
+    </video>
+  </ng-container>
+
+  <div class="flex justify-content-between">
+    <div class="flex gap-3">
+      <p-button
+        styleClass="p-button-secondary p-button-outlined w-10rem"
+        (click)="videoSaveReaction('snapshot')"
+      >
+        <i class="pi pi-camera" style="font-size: 1.5rem"></i>
+        <span class="ml-2 font-bold w-full">Snapshot</span>
+      </p-button>
+
+      <p-button
+        styleClass="p-button-secondary p-button-outlined w-10rem"
+        (click)="videoSaveReaction('star')"
+      >
+        <i class="pi pi-star" style="font-size: 1.5rem"></i>
+        <span class="ml-2 font-bold w-full">Star</span>
+      </p-button>
+    </div>
+
+    <ng-container *ngIf="loggedInUserDetails">
+      <div class="flex align-items-center gap-1">
+        <p-avatar
+          [image]="loggedInUserDetails.pictureUrl"
+          styleClass="mr-2"
+          shape="circle"
+        ></p-avatar>
+        <span> {{ loggedInUserDetails.name }}</span>
+      </div>
+    </ng-container>
+  </div>
+  <div>
+    <p class="font-bold">Reactions</p>
+
+    <div class="flex flex-column">
+      <ng-container *ngIf="videoReactionList?.length; else noReactionFoundMsg">
+        <ng-container *ngFor="let reaction of videoReactionList">
+          <div class="reaction-card cursor-pointer p-3">
+            <div class="flex gap-5 align-items-center">
+              <i
+                class="pi"
+                [ngClass]="{
+                  'pi-star': reaction.type == 'star',
+                  'pi-camera': reaction.type == 'snapshot'
+                }"
+                style="font-size: 1.5rem"
+              ></i>
+
+              <div>{{ reaction?.timeframe }}</div>
+              <ng-container
+                *ngIf="reaction.type == 'star'; else showIfSnapshot"
+              >
+                <p class="text-400">
+                  {{ reaction?.author?.name }} started the video ({{
+                    reaction.postedDate | date : "MM/dd/yyyy"
+                  }})
+                </p>
+              </ng-container>
+
+              <ng-template #showIfSnapshot>
+                <p class="text-400">
+                  {{ reaction?.author?.name }} created a snapshot ({{
+                    reaction.createdDate | date : "MM/dd/yyyy"
+                  }})
+                </p>
+              </ng-template>
+
+              <div class="ml-auto" *ngIf="reaction.type == 'snapshot'">
+                <img
+                  [alt]="reaction.imageUrl"
+                  [src]="reaction.imageUrl"
+                  width="100%"
+                  class="w-5rem h-3rem"
+                />
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #noReactionFoundMsg>
+        <p>No Reactions Found</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
